@@ -23,37 +23,18 @@ st.plotly_chart(bar_chart)
 
 st.write("## People on Board the Titanic")
 
-# Count the number of male and female passengers
-male_count = df[df['gender'] == 'male'].shape[0]
-female_count = df[df['gender'] == 'female'].shape[0]
+
 
 # Calculate the total number of passengers
-total_passengers = df.shape[0]
+total_people = df.shape[0]
 
-cols =st.columns(3)
+cols =st.columns(1)
 with cols[0]:
     ui.metric_card(
         title='Total Number of People',
-        content=total_passengers,
+        content=total_people,
         description='Passengers and crew on board the Titanic'
     )
-
-with cols[1]:
-    ui.metric_card(
-        title='Male Passengers',
-        content=male_count,
-        description='Passengers and crew on board the Titanic'
-    )
-
-with cols[2]:
-    ui.metric_card(
-        title='Female Passengers',
-        content=female_count,
-        description='Passengers and crew on board the Titanic'
-    )
-
-
-
 
 # Group by 'class' and count the number of people in each class
 class_counts = df.groupby('class').size()
@@ -67,51 +48,48 @@ victualling_crew_count = class_counts.get('victualling crew', 0)
 restaurant_staff_count = class_counts.get('restaurant staff', 0)
 deck_crew_count = class_counts.get('deck crew', 0)
 
-
-
-
-
-
-# Example of how to display these counts using Streamlit
 # First row
-cols2 = st.columns(7)
-with cols2[0]:
+cols = st.columns(3)
+with cols[0]:
     ui.metric_card(
         title='1st Class',
         content=int(first_class_count),  # Cast to int
         description='Passenger'
     )
-with cols2[1]:
+with cols[1]:
     ui.metric_card(
         title='2nd Class',
         content=int(second_class_count),  # Cast to int
         description='Passenger'
     )
-with cols2[2]:
+with cols[2]:
     ui.metric_card(
         title='3rd Class',
         content=int(third_class_count),  # Cast to int
         description='Passenger'
     )
-with cols2[3]:
+
+# Second row
+cols = st.columns(4)
+with cols[0]:
     ui.metric_card(
         title='Engineering',
         content=int(engineering_crew_count),
         description='Crew'
     )
-with cols2[4]:
+with cols[1]:
     ui.metric_card(
         title='Victualling',
         content=int(victualling_crew_count),
         description='Crew'
     )
-with cols2[5]:
+with cols[2]:
     ui.metric_card(
         title='Restaurant',
         content=int(restaurant_staff_count),
         description='Crew'
     )
-with cols2[6]:
+with cols[3]:
     ui.metric_card(
         title='Deck',
         content=int(deck_crew_count),
@@ -154,12 +132,11 @@ fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 st.plotly_chart(fig)
 
 
+#*******************************************************************************************
+#Pie Charts-------------------------Country Statisticks.....-------------------------------*
+#*******************************************************************************************
 
-# Show People grouped by Country Crew
 st.write("## People by Country")
-
-
-# Group by 'country' and count the number of crew members in each country
 crew_counts = df[df['class'].isin(['engineering crew', 'victualling crew', 'restaurant staff', 'deck crew'])].groupby('country').size()
 
 # Create a pie chart for crew members by country
@@ -167,10 +144,9 @@ pie_chart_crew = px.pie(crew_counts, values=crew_counts.values, names=crew_count
 st.plotly_chart(pie_chart_crew)
 
 
-
-
 # Group by 'country' and count the number of crew members in each country
 crew_counts = df[df['class'].isin(['1st', '2nd', '3rd', 'Passengers'])].groupby('country').size()
+
 
 # Create a pie chart for crew members by country
 pie_chart_crew = px.pie(crew_counts, values=crew_counts.values, names=crew_counts.index, title='Passengers Members by Country')
@@ -210,14 +186,140 @@ fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 st.plotly_chart(fig)
 
 
-# Show Deat rate by Country 
+#*******************************************************************************************
+#Bar Charts------------------Survival Rate and Deaths By country---------------------------*
+#*******************************************************************************************
+
 st.write("## Deaths by Country") 
 
-# Group by 'country' and count the number of deaths in each country
 death_counts = df[df['survived'] == 'no'].groupby('country').size()
-# Sort the death counts in descending order
 death_counts = death_counts.sort_values(ascending=False)
 
-# Create a bar chart for deaths by country
 bar_chart_deaths = px.bar(death_counts, x=death_counts.index, y=death_counts.values, title='Deaths by Country')
 st.plotly_chart(bar_chart_deaths)
+
+
+#*******************************************************************************************
+#----------------------------------------Survival Rates -----------------------------------*
+#*******************************************************************************************
+
+st.write("## Survival Rates")
+
+# Count the number of male and female passengers
+male_count = df[df['gender'] == 'male'].shape[0]
+female_count = df[df['gender'] == 'female'].shape[0]
+
+
+survived_male_count = df[(df['survived'] == 'yes') & (df['gender'] == 'male')].shape[0]
+survived_female_count = df[(df['survived'] == 'yes') & (df['gender'] == 'female')].shape[0]
+
+survived_crew_counts = df[(df['survived'] == 'yes') & df['class'].isin(['engineering crew', 'victualling crew', 'restaurant staff', 'deck crew'])].shape[0]
+total_crew_counts = df[df['class'].isin(['engineering crew', 'victualling crew', 'restaurant staff', 'deck crew'])].shape[0]
+
+total_passengers = df[df['class'].isin(['1st', '2nd', '3rd'])].shape[0]
+
+# Count the number of survived and not survived passengers
+survived_passenger_count = df[df['survived'] == 'yes'].shape[0]
+not_survived_passenger_count = df[df['survived'] == 'no'].shape[0]
+
+# Calculate the relative survival rate for passengers
+relative_survival_rate = survived_passenger_count / total_passengers
+
+
+# Calculate the relative survival rate for male and female passengers
+relative_male_survival_rate = survived_male_count / male_count
+relative_female_survival_rate = survived_female_count / female_count
+relative_crew_survival_rate = survived_crew_counts / total_crew_counts
+
+
+
+# Display the relative survival rates in metric cards
+cols = st.columns(2)
+with cols[0]:
+    ui.metric_card(
+        title='Male Passengers',
+        content=male_count,
+        description='Passengers and crew on board the Titanic'
+    )
+
+with cols[1]:
+    ui.metric_card(
+        title='Female Passengers',
+        content=female_count,
+        description='Passengers and crew on board the Titanic'
+    )
+with cols[0]:
+    ui.metric_card(
+        title='Male Survival Rate',
+        content=f'{relative_male_survival_rate:.2%}',
+        description='Total Number: ' + str(survived_male_count)
+    )
+
+with cols[1]:
+    ui.metric_card(
+        title='Female Survival Rate',
+        content=f'{relative_female_survival_rate:.2%}',
+        description='Total Number: ' + str(survived_female_count)
+    )
+
+with cols[1]:
+    ui.metric_card(
+        title='Total Passengers',
+        content=total_passengers,
+        description='Passengers on board the Titanic'
+    )
+
+with cols[0]:
+    ui.metric_card(
+        title='Total Crew',
+        content=total_crew_counts,
+        description='Crew members on board the Titanic'
+    )
+
+
+
+with cols[0]:
+    ui.metric_card(
+        title='Crew Survival Rate',
+        content=f'{relative_crew_survival_rate:.2%}',
+        description='Total Number: ' + str(survived_crew_counts)
+    )
+
+with cols[1]:
+    ui.metric_card(
+        title='Passenger Survival Rate',
+        content=f'{relative_survival_rate:.2%}',
+        description='Total Number: ' + str(survived_passenger_count)
+    )
+
+
+#*******************************************************************************************
+#----------------------------------------Average age---------------------------------------*
+#*******************************************************************************************
+
+st.write("## Average Age")
+
+average_age_crew = df[df['class'].isin(['engineering crew', 'victualling crew', 'restaurant staff', 'deck crew'])]['age'].mean()
+
+average_age_passenger = df[df['class'].isin(['1st', '2nd', '3rd'])]['age'].mean()
+
+median_age_crew = df[df['class'].isin(['engineering crew', 'victualling crew', 'restaurant staff', 'deck crew'])]['age'].median()
+
+median_age_passenger = df[df['class'].isin(['1st', '2nd', '3rd'])]['age'].median()
+
+
+
+
+cols =st.columns(2)
+with cols[0]:
+    ui.metric_card(
+        title='Average Age (Crew)',
+        content=f'{average_age_crew:.2f} years',
+        description=f'Median Age: {median_age_crew:.2f} years'
+    )
+with cols[1]:
+    ui.metric_card(
+        title='Average Age (Passenger)',
+        content=f'{average_age_passenger:.2f} years',
+        description=f'Median Age: {median_age_passenger:.2f} years' 
+    )
